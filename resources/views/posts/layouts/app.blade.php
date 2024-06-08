@@ -15,6 +15,19 @@
             <a href="{{ route('home') }}" class="flex items-center hover:text-white hover:bg-sky-700 h-full p-5">Home</a>
             <a href="{{ route('posts.create') }}" class="flex items-center hover:text-white hover:bg-sky-700 h-full p-5">Create Posts</a>
             <a href="{{ route('posts.table') }}" class="flex items-center hover:text-white hover:bg-sky-700 h-full p-5">Table</a>
+            @guest
+                <a href="{{ route('login') }}" class="flex items-center hover:text-white hover:bg-sky-700 h-full p-5">Login</a>
+                <a href="{{ route('register') }}" class="flex items-center hover:text-white hover:bg-sky-700 h-full p-5">Register</a>
+            @else
+                <a href="{{ route('logout') }}" 
+                   class="flex items-center hover:text-white hover:bg-sky-700 h-full p-5"
+                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                   Logout
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            @endguest
         </nav>
     </header>
 
