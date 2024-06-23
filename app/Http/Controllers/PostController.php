@@ -5,18 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
     public function index() {
         $posts = Post::all();
         return view('posts.index', compact('posts'));
-        // return "Bas";
     }
 
     public function create() {
         return view('posts.create');
-        // return "Hello, this is a simple string response!";
     }
     
     public function table() {
@@ -38,9 +37,27 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required',
             'content' => 'required',
+            'image' => 'mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        Post::create($request->all());
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('posts', 'public');
+
+            $postData = $request->except('image');
+            $postData['image_path'] = $imagePath;
+            
+            $post = new Post();
+            $post->title = $postData['title'];
+            $post->content = $postData['content'];
+            $post->image_path = $imagePath;
+
+            $post->save();
+        } else {
+            Post::create($request->only('title', 'content'));
+        }
+
+
+        // Post::create($request->all());
         return redirect()->route('home');
     }
 
@@ -53,10 +70,28 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required',
             'content' => 'required',
+            'image' => 'mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
+        $postData = $request->except('image');
+
         $post = Post::findOrFail($id);
-        $post->update($request->all());
+
+        $post->title = $postData['title'];
+        $post->content = $postData['content'];
+
+        if ($request->hasFile('image')) {
+            if ($post->image_path) {
+                Storage::disk('public')->delete($post->image_path);
+            }
+
+            $imagePath = $request->file('image')->store('posts', 'public');
+            $post->image_path = $imagePath;
+        }
+
+        $post->save();
+
+
         return redirect()->route('home');
     }
 

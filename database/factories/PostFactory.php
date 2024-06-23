@@ -21,6 +21,8 @@ class PostFactory extends Factory
         return [
             'title' => $this->faker->sentence,
             'content' => $this->faker->paragraph,
+            'image_path' => 'posts/' . $this->faker->image('storage/app/public/posts', 640, 480, null, false),
+
         ];
     }
 }
